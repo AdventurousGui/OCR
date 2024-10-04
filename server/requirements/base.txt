@@ -16,4 +16,4 @@ reportlab==3.6.13
 pypdfium2==4.25.0
 requests==2.31.0
 dnspython<2.6.0  #eventlet breaks with any higher version
-numpy<2
+numpy<2  # numpy 2 is incompatible with many python libs
