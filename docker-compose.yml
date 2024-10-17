@@ -15,8 +15,8 @@ services:
       FLASK_DEBUG: 1
       ES_URL: http://elasticsearch:9200
     command: /app/start
-    ports:
-      - "5001:5001"
+    expose:
+      - "5001"  # exposed only to other services
     depends_on:
       elasticsearch:
         condition: service_healthy
@@ -45,8 +45,8 @@ services:
 
   redis:
     image: redis:7.2
-    ports:
-      - "6379:6379"
+    expose:
+      - "6379"  # exposed only to other services
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -76,8 +76,8 @@ services:
     build:
       context: ./compose/elasticsearch
       dockerfile: Dockerfile
-    ports:
-     - "9200:9200"
+    expose:
+      - "9200"  # exposed only to other services
     volumes:
       - elasticsearch_data:/usr/share/elasticsearch/data
     environment:
