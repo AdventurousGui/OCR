@@ -2,7 +2,7 @@
 # SPDX-FileCopyrightText: 2022 James R. Barlow
 # SPDX-License-Identifier: MPL-2.0
 
-FROM ubuntu:22.04 as base
+FROM ubuntu:22.04 AS base
 
 ENV LANG=C.UTF-8
 ENV TZ=UTC
@@ -14,7 +14,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   zlib1g \
   liblept5
 
-FROM base as builder
+FROM base AS builder
 
 # populate variable for later
 ARG TARGETARCH
@@ -60,7 +60,7 @@ RUN pip3 install --no-cache-dir pypdfium2==$PYPDFIUM2_VERSION
 ARG PDFIUM_VERSION=6164
 ARG PDFIUM_URL=https://github.com/bblanchon/pdfium-binaries/releases/download/chromium
 
-# build to this prefix 
+# build to this prefix
 ARG PREFIX=/usr/local
 ENV PKG_CONFIG_PATH=$PREFIX/lib/pkgconfig
 
