@@ -90,7 +90,7 @@ def get_file_parsed(path):
                                 t = t[1:]
                             else:
                                 break
-                        
+
                         while t:
                             if t[-1] in punctuation + "«»—":
                                 t = t[:-1]
@@ -165,7 +165,7 @@ def save_file_layouts(path, layouts):
 
         with open(filename, "w", encoding="utf-8") as f:
             json.dump(layouts, f, indent=2, ensure_ascii=False)
-  
+
 # DONE
 def generate_uuid(path):
     random.seed(path)
@@ -292,7 +292,7 @@ def get_structure_info(path, private_session):
             if private_session is not None and \
                 not(f"files/_private_sessions/{private_session}" in f"{root}/{folder}" or \
                     f"{root}/{folder}" in f"files/_private_sessions/{private_session}"): continue
-            
+
             folder_path = f"{root}/{folder}".replace("\\", "/")
 
             folder_info = get_folder_info(folder_path)
@@ -423,9 +423,9 @@ def prepare_file_ocr(path):
             pdf = pdfium.PdfDocument(f"{path}/{basename}.pdf")
             for i in range(len(pdf)):
                 page = pdf[i]
-                bitmap = page.render(200 / 72)
+                bitmap = page.render(200 / 72)  # turn PDF page into 200 DPI bitmap
                 pil_image = bitmap.to_pil()
-                pil_image.save(f"{path}/{basename}_{i}.jpg")
+                pil_image.save(f"{path}/{basename}_{i}.jpg", dpi=(200, 200))
 
             pdf.close()
 
@@ -433,7 +433,7 @@ def prepare_file_ocr(path):
             img = Image.open(f"{path}/{basename}.{extension}")
             img.save(f"{path}/{basename}.jpg", "JPEG")
     except Exception as e:
-        
+
         data_folder = f"{path}/_data.json"
         data = get_data(data_folder)
         data["ocr"] = data.get("ocr", {})
