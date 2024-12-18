@@ -96,13 +96,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   tesseract-ocr \
   tesseract-ocr-chi-sim \
   tesseract-ocr-deu \
-  tesseract-ocr-eng \
   tesseract-ocr-fra \
-  tesseract-ocr-por \
   tesseract-ocr-spa \
   unpaper \
   file \
+  wget \
   && rm -rf /var/lib/apt/lists/*
+
+RUN wget -O /usr/share/tesseract-ocr/5/tessdata/eng.traineddata "https://github.com/tesseract-ocr/tessdata/raw/refs/heads/main/eng.traineddata"
+RUN wget -P /usr/share/tesseract-ocr/5/tessdata/ "https://github.com/tesseract-ocr/tessdata/raw/refs/heads/main/por.traineddata"
 
 WORKDIR /app
 
