@@ -51,6 +51,9 @@ def get_structure(page, config, segment_box=None):
     else:
         hocr = get_hocr(page, config)
 
+    with open("results.hocr", "wb") as hocr_file:
+        hocr_file.write(hocr)
+
     p1 = re.compile(r"bbox((\s+\d+){4})")
     p2 = re.compile(r"baseline((\s+[\d\.\-]+){2})")
 
