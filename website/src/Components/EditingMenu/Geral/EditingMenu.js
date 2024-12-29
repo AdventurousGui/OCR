@@ -32,11 +32,34 @@ class Word extends React.Component {
             id: props.id,
             box: props.box,
             cleanText: props.cleanText,
+            editWord: false
         }
     }
 
+    toggleEditWord() {
+      this.setState({
+        editWord: !this.state.editWord
+      })
+    }
+    handleWordChange(e) {
+      this.setState({
+        text: e.target.value
+      });
+    }
+
     render() {
-        return <p
+        return (this.state.editWord)
+      ? <input
+            autoFocus
+            className={`${this.state.cleanText}`}
+            style={{width: `${this.state.text.length}ch`}}
+            type="text"
+            value={this.state.text}
+            onBlur={e => this.toggleEditWord()}
+            onChange={e => this.handleWordChange(e)}
+            onKeyPress={e => { if (e.key === 'Enter') { this.handleWordChange(e); this.toggleEditWord()}}}
+            />
+          : <p
             id={this.state.id}
             className={`${this.state.cleanText}`}
             style={{
@@ -53,6 +76,7 @@ class Word extends React.Component {
             onMouseLeave={(e) => {
                 this.state.overlay.setState({selectedWordBox: null});
             }}
+            onClick={e=> this.toggleEditWord()}
         >
             {this.state.text}
         </p>
