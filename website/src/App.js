@@ -229,16 +229,16 @@ function App() {
 
         changeFolderFromPath(folder_name) {
             var current_folder = this.state.currentFolder;
-    
+
             // Remove the last element of the path until we find folder_name
             while (current_folder[current_folder.length - 1] !== folder_name) {
                 current_folder.pop();
             }
-    
+
             this.setState({
-                currentFolder: current_folder,  
+                currentFolder: current_folder,
                 fileSystemMode: true,
-                editingMenu: false, 
+                editingMenu: false,
                 layoutMenu: false,
             });
 
@@ -316,7 +316,7 @@ function App() {
                             >
                                 Sessão Privada
                             </Button>
-                            
+
                             <Button
                                 disabled={buttonsDisabled}
                                 variant="contained"
@@ -348,7 +348,7 @@ function App() {
 
                                         if (!this.state.fileSystemMode && !this.state.editingMenu && index > 0)
                                             return null;
-                                        
+
                                         if (folderDepth > 3 && index === 1) {
                                             return (
                                                 <Box sx={{display: "flex", flexDirection: "row", lineHeight: "2rem"}}>
@@ -418,12 +418,12 @@ function App() {
                                     </Button>
                                     : null
                                 }
-                                
+
                             </Box>
                         </Box>
 
-                        
-                        
+
+
                         <Box sx={{display: "flex", flexDirection: "row", lineHeight: "2rem"}}>
                             <Button
                                 disabled={buttonsDisabled}
@@ -511,7 +511,7 @@ function App() {
                                             top: "5.5rem",
                                             p: "0rem 1rem",
                                             width: "8rem",
-                                            
+
                                         }}
                                     >
                                         {
