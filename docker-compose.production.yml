@@ -11,12 +11,12 @@ services:
       dockerfile: ../compose/server/Dockerfile
     environment:
       FLASK_APP: app
-      FLASK_ENV: development
-      FLASK_DEBUG: 1
+      FLASK_ENV: production
+      FLASK_DEBUG: 0
       ES_URL: http://elasticsearch:9200
     command: /app/start
     ports:
-      - "5001:5001"
+      - "5001"  # exposed only to other services
     depends_on:
       elasticsearch:
         condition: service_healthy
@@ -50,7 +50,7 @@ services:
   redis:
     image: redis:7.2
     ports:
-      - "6379:6379"
+      - "6379"  # exposed only to other services
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -85,7 +85,7 @@ services:
       context: ./compose/elasticsearch
       dockerfile: Dockerfile
     ports:
-     - "9200:9200"
+      - "9200"  # exposed only to other services
     volumes:
       - elasticsearch_data:/usr/share/elasticsearch/data
     environment:
@@ -107,9 +107,9 @@ services:
       dockerfile: ../compose/server/Dockerfile
     environment:
       CELERY_BROKER_URL: redis://redis:6379/0
-    command: celery -A celery_app.celery flower --port=5555
+    command: celery -A celery_app.celery flower --port=5050
     ports:
-      - "5555:5555"
+      - "5050"  # exposed only to other services
     depends_on:
       - redis
     restart: unless-stopped
