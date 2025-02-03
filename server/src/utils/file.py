@@ -423,9 +423,9 @@ def prepare_file_ocr(path):
             pdf = pdfium.PdfDocument(f"{path}/{basename}.pdf")
             for i in range(len(pdf)):
                 page = pdf[i]
-                bitmap = page.render(200 / 72)  # turn PDF page into 200 DPI bitmap
+                bitmap = page.render(300 / 72)  # turn PDF page into 300 DPI bitmap
                 pil_image = bitmap.to_pil()
-                pil_image.save(f"{path}/{basename}_{i}.jpg", dpi=(200, 200))
+                pil_image.save(f"{path}/{basename}_{i}.jpg", dpi=(300, 300))
 
             pdf.close()
 

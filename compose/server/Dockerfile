@@ -103,6 +103,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   wget \
   && rm -rf /var/lib/apt/lists/*
 
+ENV TESSDATA_PREFIX=/usr/share/tesseract-ocr/5/tessdata/
+
 RUN wget -O /usr/share/tesseract-ocr/5/tessdata/eng.traineddata "https://github.com/tesseract-ocr/tessdata/raw/refs/heads/main/eng.traineddata"
 RUN wget -P /usr/share/tesseract-ocr/5/tessdata/ "https://github.com/tesseract-ocr/tessdata/raw/refs/heads/main/por.traineddata"
 
