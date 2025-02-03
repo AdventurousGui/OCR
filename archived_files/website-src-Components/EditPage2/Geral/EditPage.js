@@ -4,7 +4,7 @@ import Button from '@mui/material/Button';
 import UndoIcon from '@mui/icons-material/Undo';
 import SaveIcon from '@mui/icons-material/Save';
 
-import loadComponent from '../../../utils/loadComponents';
+import loadComponent from '../../../../website/src/utils/loadComponents';
 import { CircularProgress } from '@mui/material';
 
 export default class EditPage extends React.Component {
@@ -57,7 +57,7 @@ export default class EditPage extends React.Component {
     updateContents(index, contents, previousStruct, newStruct) {
         var newContents = this.state.contents;
         newContents[index]["content"] = contents;
-        
+
         var words = this.state.words_list;
         var previousWords = previousStruct["text"].split(" ");
         var newWords = newStruct["text"].split(" ");
@@ -110,7 +110,7 @@ export default class EditPage extends React.Component {
             var contents = data["doc"].sort((a, b) =>
                 (a["page_number"] > b["page_number"]) ? 1 : -1
             )
-            
+
             var sortedWords = this.orderWords(data["words"]);
 
             var newCorpusList = [];
@@ -262,7 +262,7 @@ export default class EditPage extends React.Component {
                         Guardar
                     </Button>
                 </Box>
-                
+
                 <Box sx={{ml: '1.5rem', mr: '1.5rem', display: 'flex', flexDirection: 'row'}}>
                     <Box sx={{width: '80vw'}}>
                         {
@@ -293,10 +293,10 @@ export default class EditPage extends React.Component {
                             ? <><span>Loading...</span></>
                             : <Box>
                                 <Box sx={{display: "flex", flexDirection: "column"}}>
-                                    <CorpusDropdown 
-                                        ref={this.corpusSelect} 
-                                        options={this.state.corpusOptions} 
-                                        choice={this.state.corpusChoice} 
+                                    <CorpusDropdown
+                                        ref={this.corpusSelect}
+                                        options={this.state.corpusOptions}
+                                        choice={this.state.corpusChoice}
                                     />
 
                                     <Box sx={{display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center"}}>
