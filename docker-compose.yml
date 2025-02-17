@@ -21,7 +21,7 @@ services:
       redis:
         condition: service_healthy
     volumes:
-      - files_data:/app/files
+      - files_data:/app/_files
     restart: unless-stopped
 
   celery_worker:
@@ -34,7 +34,7 @@ services:
       C_FORCE_ROOT: true
     command: celery -A celery_app.celery worker --loglevel=info --without-gossip --without-mingle --without-heartbeat -Ofair --concurrency=8 -P eventlet -E --hostname=worker1@%h
     volumes:
-      - files_data:/app/files
+      - files_data:/app/_files
     links:
       - redis
     depends_on:
@@ -79,7 +79,7 @@ services:
       retries: 15
       start_period: 10s
     volumes:
-      - files_data:/app/files
+      - files_data:/app/_files
     restart: unless-stopped
 
   nginx:
@@ -95,6 +95,7 @@ services:
     environment:
       PUBLIC_URL: /ocr/
       REACT_APP_API_URL: ./api/
+      NODE_ENV: development
     restart: unless-stopped
 
   elasticsearch:

@@ -17,8 +17,8 @@ from src.algorithms import tesseract
 from src.algorithms import easy_ocr
 from src.algorithms import tesserOCR
 
+from src.utils.export import export_file
 from src.utils.file import get_current_time
-from src.utils.file import export_file
 from src.utils.file import get_size
 from src.utils.file import update_data
 from src.utils.file import get_data
@@ -121,8 +121,8 @@ def task_file_ocr(path, config, ocr_algorithm, testing=False):
 
         print(f"Starting OCR for {len(images)} pages at {time.strftime('%Y-%m-%d %H:%M:%S')}.\n")
 
-        if not os.path.exists(f"{path}/ocr_results"):
-            os.mkdir(f"{path}/ocr_results")
+        if not os.path.exists(f"{path}/_ocr_results"):
+            os.mkdir(f"{path}/_ocr_results")
 
         log.info("{path}: A começar OCR")
 
@@ -166,8 +166,6 @@ def task_page_ocr(path, filename, config, ocr_algorithm):
         data_folder = f"{path}/_data.json"
         data = get_data(data_folder)
 
-        ocr_algorithm = "tesserOCR"
-
         # Convert the ocr_algorithm to the correct class
         ocr_algorithm = globals()[ocr_algorithm]
 
@@ -204,7 +202,7 @@ def task_page_ocr(path, filename, config, ocr_algorithm):
 
             json_d = ocr_algorithm.get_structure(image, config)
             json_d = [[x] for x in json_d]
-            with open(f"{path}/ocr_results/{get_file_basename(filename)}.json", "w", encoding="utf-8") as f:
+            with open(f"{path}/_ocr_results/{get_file_basename(filename)}.json", "w", encoding="utf-8") as f:
                 json.dump(json_d, f, indent=2, ensure_ascii=False)
         else:
             with open(layout_path, "r", encoding="utf-8") as json_file:
@@ -232,8 +230,8 @@ def task_page_ocr(path, filename, config, ocr_algorithm):
 
 
             if image_groups:
-                if not os.path.exists(f"{path}/images"):
-                    os.mkdir(f"{path}/images")
+                if not os.path.exists(f"{path}/_images"):
+                    os.mkdir(f"{path}/_images")
 
                 for id, item in enumerate(image_groups):
                     for sq in item["squares"]:
@@ -244,7 +242,7 @@ def task_page_ocr(path, filename, config, ocr_algorithm):
 
                         box_coords = (left, top, right, bottom)
                         cropped_image = image.crop(box_coords)
-                        cropped_image.save(f"{path}/images/page{page_id}_{id+1}.jpg")
+                        cropped_image.save(f"{path}/_images/page{page_id}_{id+1}.jpg")
 
 
             box_coordinates_list = []
@@ -255,12 +253,12 @@ def task_page_ocr(path, filename, config, ocr_algorithm):
                     top = sq["top"]
                     right = sq["right"]
                     bottom = sq["bottom"]
-                
+
                     box_coords = (left, top, right, bottom)
                     box_coordinates_list.append(box_coords)
 
             all_jsons = []
-            for box in box_coordinates_list:                
+            for box in box_coordinates_list:
                 json_d = ocr_algorithm.get_structure(image, config, box)
                 if json_d:
                     all_jsons.append(json_d)
@@ -268,18 +266,18 @@ def task_page_ocr(path, filename, config, ocr_algorithm):
             page_json = []
             for sublist in all_jsons:
                 page_json.append(sublist)
-            
-            with open(f"{path}/ocr_results/{get_file_basename(filename)}.json", "w", encoding="utf-8") as f:
+
+            with open(f"{path}/_ocr_results/{get_file_basename(filename)}.json", "w", encoding="utf-8") as f:
                 json.dump(page_json, f, indent=2, ensure_ascii=False)
 
-        files = os.listdir(f"{path}/ocr_results")
+        files = os.listdir(f"{path}/_ocr_results")
 
         data = get_data(data_folder)
         data["ocr"] = data.get("ocr", {})
         data["ocr"]["progress"] = len(files)
         update_data(data_folder, data)
 
-        
+
         if data["pages"] == len(files):
             log.info(f"{path}: Acabei OCR")
 
@@ -287,7 +285,7 @@ def task_page_ocr(path, filename, config, ocr_algorithm):
 
             data["ocr"] = {
                 "progress": len(files),
-                "size": get_ocr_size(f"{path}/ocr_results"),
+                "size": get_ocr_size(f"{path}/_ocr_results"),
                 "creation": creation_date,
             }
 
@@ -311,7 +309,7 @@ def task_page_ocr(path, filename, config, ocr_algorithm):
                 "creation": creation_date,
             }
 
-            if os.path.exists(f"{path}/images") and os.listdir(f"{path}/images"):
+            if os.path.exists(f"{path}/_images") and os.listdir(f"{path}/images"):
                 export_file(path, "imgs")
                 data["zip"] = {
                     "complete": True,
@@ -368,7 +366,7 @@ def task_page_ocr(path, filename, config, ocr_algorithm):
 
     except Exception as e:
         print(e)
-        
+
         traceback.print_exc()
 
         data_folder = f"{path}/_data.json"
@@ -378,7 +376,7 @@ def task_page_ocr(path, filename, config, ocr_algorithm):
         log.error(f"Error in performing a page's OCR for file at {path}: {e}")
 
         return {"status": "error"}
-    
+
 @celery.task(name="ocr_complete")
 def task_ocr_complete(results, path, start_time):
     """
