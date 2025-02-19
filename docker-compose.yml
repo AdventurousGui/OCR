@@ -7,6 +7,7 @@ services:
     build:
       context: ./server
       dockerfile: ../compose/server/Dockerfile
+    image: ocr-server
     environment:
       FLASK_APP: app
       FLASK_ENV: development
@@ -23,50 +24,43 @@ services:
     volumes:
       - files_data:/app/_files
     restart: unless-stopped
+    networks:
+      - ocr-network
 
-  celery_worker:
+  worker:
     build:
       context: ./server
       dockerfile: ../compose/server/Dockerfile
     environment:
-      CELERY_BROKER_URL: redis://redis:6379/0
-      CELERY_RESULT_BACKEND: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379
+      CELERY_RESULT_BACKEND: redis://redis:6379
       C_FORCE_ROOT: true
     command: celery -A celery_app.celery worker --loglevel=info --without-gossip --without-mingle --without-heartbeat -Ofair --concurrency=8 -P eventlet -E --hostname=worker1@%h
     volumes:
       - files_data:/app/_files
-    links:
-      - redis
     depends_on:
-      - redis
+        - redis
     restart: unless-stopped
 
+    networks:
+      - ocr-network
+
   flower:
-    build:
-      context: ./server
-      dockerfile: ../compose/server/Dockerfile
+    image: ocr-server
     environment:
-      CELERY_BROKER_URL: redis://redis:6379/0
-      CELERY_RESULT_BACKEND: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379
+      CELERY_RESULT_BACKEND: redis://redis:6379
       C_FORCE_ROOT: true
       # NO AUTHENTICATION BY DEFAULT; BASIC AUTH IS UNSAFE
       #FLOWER_BASIC_AUTH: TEMP:PWD
-    command: celery -A celery_app.celery flower --port=5050 --url-prefix=/flower
+    command: celery -A celery_app.celery flower --port=5050
     expose:
       - "5050"  # exposed only to other services
-    healthcheck:
-      test: "ping"
-      interval: 10s
-      timeout: 30s
-      retries: 15
-      start_period: 10s
-    links:
-      - celery_worker
-      - redis
     depends_on:
-      - celery_worker
       - redis
     restart: unless-stopped
+    networks:
+      - ocr-network
 
   redis:
     image: redis:7.2
@@ -81,6 +75,8 @@ services:
     volumes:
       - files_data:/app/_files
     restart: unless-stopped
+    networks:
+      - ocr-network
 
   nginx:
     build:
@@ -97,6 +93,8 @@ services:
       REACT_APP_API_URL: ./api/
       NODE_ENV: development
     restart: unless-stopped
+    networks:
+      - ocr-network
 
   elasticsearch:
     build:
@@ -116,3 +114,9 @@ services:
       retries: 15
       start_period: 10s
     restart: unless-stopped
+    networks:
+      - ocr-network
+
+networks:
+  ocr-network:
+    driver: bridge
