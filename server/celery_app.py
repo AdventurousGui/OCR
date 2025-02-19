@@ -110,7 +110,7 @@ def task_file_ocr(path, config, ocr_algorithm, testing=False):
     """
 
     print("ESTOU NO TASK_FILE_OCR")
-    
+
     # Start timer for the entire OCR process
     start_time = time.time()
 

@@ -226,6 +226,7 @@ def get_file():
     doc, words = get_file_parsed(path, is_private)
     return {"pages": totalPages, "doc": doc, "words": words, "corpus": [x[:-4] for x in os.listdir("corpus")]}
 
+
 @app.route("/get_txt_delimitado", methods=["GET"])
 @requires_arg_path
 def get_txt_delimitado():
@@ -233,6 +234,7 @@ def get_txt_delimitado():
     if path is None:
         abort(404)
     return send_file(f"{path}/_text_delimiter.txt")
+
 
 @app.route("/get_txt", methods=["GET"])
 @requires_arg_path
@@ -242,6 +244,7 @@ def get_txt():
         abort(404)
     return send_file(f"{path}/_text.txt")
 
+
 @app.route("/get_entities", methods=["GET"])
 @requires_arg_path
 def get_entities():
@@ -249,6 +252,7 @@ def get_entities():
     if path is None:
         abort(404)
     return send_file(f"{path}/_entities.json")
+
 
 @app.route("/request_entities", methods=["GET"])
 @requires_arg_path
@@ -291,6 +295,7 @@ def get_pdf():
     file = export_file(path, "pdf")
     return send_file(file)
 
+
 @app.route("/get_pdf_simples", methods=["GET"])
 @requires_arg_path
 def get_pdf_simples():
@@ -300,6 +305,7 @@ def get_pdf_simples():
     file = export_file(path, "pdf", simple=True)
     return send_file(file)
 
+
 @app.route("/get_csv", methods=["GET"])
 @requires_arg_path
 def get_csv():
@@ -307,6 +313,7 @@ def get_csv():
     if path is None:
         abort(404)
     return send_file(f"{path}/_index.csv")
+
 
 @app.route("/get_images", methods=["GET"])
 @requires_arg_path
@@ -316,6 +323,7 @@ def get_images():
         abort(404)
     file = export_file(path, "imgs")
     return send_file(file)
+
 
 @app.route("/get_original", methods=["GET"])
 @requires_arg_path
@@ -350,6 +358,7 @@ def delete_path():
         "files": get_filesystem(filesystem_path, private_session, is_private),
     }
 
+
 @app.route("/delete-private-session", methods=["POST"])
 def delete_private_session():
     data = request.json
@@ -371,6 +380,7 @@ def delete_private_session():
         "private_sessions": get_private_sessions(),
     }
 
+
 @app.route("/set-upload-stuck", methods=["POST"])
 @requires_json_path
 def set_upload_stuck():
@@ -387,6 +397,7 @@ def set_upload_stuck():
         "message": "O upload do ficheiro falhou",
         "files": get_filesystem(filesystem_path, private_session, is_private),
     }
+
 
 #####################################
 # FILES ROUTES
@@ -438,9 +449,6 @@ def prepare_upload():
         return {"success": False, "error": "O servidor não tem espaço suficiente. Por favor informe o administrador"}
 
     data = request.json
-    # TODO: TEST for EMPTY PATH
-    #if ("path" not in data
-    #    or "name" not in data or data["name"] == ''):
     if "name" not in data or data["name"] == '':
         abort(400)  # Bad Request
 
@@ -486,6 +494,7 @@ def join_chunks(target_path, file_path, filename, total_count, complete_filename
 
     shutil.rmtree(f"pending-files/{complete_filename}")
     log.info(f"Finished uploading file {filename}")
+
 
 @app.route("/upload-file", methods=["POST"])
 @requires_form_path
@@ -857,6 +866,7 @@ def create_private_session():
 
     return {"success": True, "sessionId": session_id}
 
+
 @app.route('/validate-private-session', methods=['POST'])
 def validate_private_session():
     data = request.json
@@ -871,6 +881,7 @@ def validate_private_session():
         response = {"success": True, "valid": False}
 
     return response
+
 
 #####################################
 # LAYOUTS
@@ -904,6 +915,7 @@ def save_layouts():
     except FileNotFoundError:
         abort(404)
     return {"success": True}
+
 
 @app.route("/generate-automatic-layouts", methods=["GET"])
 @requires_arg_path
