@@ -463,7 +463,7 @@ def prepare_file_ocr(path):
                 page = pdf[i]
                 bitmap = page.render(300 / 72)  # turn PDF page into 300 DPI bitmap
                 pil_image = bitmap.to_pil()
-                pil_image.save(f"{path}/{basename}_{i}.png", dpi=(300, 300))
+                pil_image.save(f"{path}/{basename}_{i}.png")
 
             pdf.close()
 
