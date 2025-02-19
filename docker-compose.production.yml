@@ -49,9 +49,9 @@ services:
     image: ocr-server
     environment:
       CELERY_BROKER_URL: redis://redis:6379
-    command: celery -A celery_app.celery flower --port=5555
+    command: celery -A celery_app.celery flower --port=5050
     ports:
-      - "5555"  # exposed only to other services
+      - "5050"  # exposed only to other services
     depends_on:
       - redis
     restart: unless-stopped
