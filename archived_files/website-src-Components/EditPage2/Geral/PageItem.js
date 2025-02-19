@@ -1,9 +1,9 @@
 import React from 'react';
 import Box from '@mui/material/Box';
 
-import addLine from "../../../../static/addLine.svg"
-import removeLine from "../../../../static/removeLine.svg"
-import loadComponent from '../../../../utils/loadComponents.js';
+import addLine from "../../../static/addLine.svg"
+import removeLine from "../../../static/removeLine.svg"
+import loadComponent from '../../../utils/loadComponents.js';
 
 class WordItem extends React.Component {
     constructor(props) {

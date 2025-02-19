@@ -1,7 +1,7 @@
 import React from 'react';
 import Box from '@mui/material/Box';
 
-import loadComponent from '../../../../utils/loadComponents.js';
+import loadComponent from '../../../utils/loadComponents.js';
 
 export default class PageItem extends React.Component {
     constructor(props) {

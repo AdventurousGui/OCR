@@ -4,7 +4,7 @@ import Button from '@mui/material/Button';
 import UndoIcon from '@mui/icons-material/Undo';
 import SaveIcon from '@mui/icons-material/Save';
 
-import loadComponent from '../../../../utils/loadComponents';
+import loadComponent from '../../../utils/loadComponents';
 import { CircularProgress } from '@mui/material';
 
 export default class EditPage extends React.Component {
