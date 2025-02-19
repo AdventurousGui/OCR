@@ -6,7 +6,7 @@ import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 
-import loadComponent from '../../../../website/src/utils/loadComponents';
+import loadComponent from '../../../utils/loadComponents';
 
 const style = {
     position: 'absolute',
