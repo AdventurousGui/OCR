@@ -163,9 +163,6 @@ def task_page_ocr(path, filename, config, ocr_algorithm):
     if filename.split(".")[0][-1] == "$": return
 
     try:
-        data_folder = f"{path}/_data.json"
-        data = get_data(data_folder)
-
         # Convert the ocr_algorithm to the correct class
         ocr_algorithm = globals()[ocr_algorithm]
 
@@ -173,7 +170,7 @@ def task_page_ocr(path, filename, config, ocr_algorithm):
         print("Resolved OCR Algorithm:", ocr_algorithm)
         print("OCR Algorithm Type:", type(ocr_algorithm))
 
-        layout_path = f"{path}/layouts/{get_file_basename(filename)}.json"
+        layout_path = f"{path}/_layouts/{get_file_basename(filename)}.json"
         segment_ocr_flag = False
 
         parsed_json = []
@@ -272,6 +269,7 @@ def task_page_ocr(path, filename, config, ocr_algorithm):
 
         files = os.listdir(f"{path}/_ocr_results")
 
+        data_folder = f"{path}/_data.json"
         data = get_data(data_folder)
         data["ocr"] = data.get("ocr", {})
         data["ocr"]["progress"] = len(files)

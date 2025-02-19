@@ -143,14 +143,18 @@ def get_file_parsed(path, is_private):
     return data, words
 
 # TODO
-def get_file_layouts(path):
+def get_file_layouts(path, is_private):
+    data = get_data(f"{path}/_data.json")
     layouts = []
     basename = get_file_basename(path)
-    data = get_data(f"{path}/_data.json")
 
     for page in range(data["pages"]):
         filename = f"{path}/_layouts/{basename}_{page}.json"
-        page_url = IMAGE_PREFIX + "/images/" + "/".join(path.split("/")[1:]) + f"/{basename}_{page}.jpg"
+        if is_private:
+            folder_url = f"/private/{path.replace(PRIVATE_PATH, '')}"
+        else:
+            folder_url = f"/image/{path.replace(FILES_PATH, '')}"
+        page_url = IMAGE_PREFIX + folder_url + f"/{basename}_{page}.jpg"
 
         if os.path.exists(filename):
             with open(filename, encoding="utf-8") as f:
@@ -472,3 +476,4 @@ def prepare_file_ocr(path):
         data["ocr"]["exceptions"] = str(e)
         update_data(data_folder, data)
         log.error(f"Error in preparing OCR for file at {path}: {e}")
+        raise e

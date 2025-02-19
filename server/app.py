@@ -61,7 +61,7 @@ private_sessions = dict()
 
 
 def format_path(request_data):
-    is_private = "_private" in request_data and (request_data["_private"] == 'true')
+    is_private = "_private" in request_data and (request_data["_private"] == 'true' or request_data["_private"] == True)
     if is_private:
         private_session = request_data["path"].strip("/").split("/")[0]
         if private_session == "":  # path for private session must start with session ID
@@ -375,7 +375,10 @@ def delete_private_session():
 @requires_json_path
 def set_upload_stuck():
     path, filesystem_path, private_session, is_private = format_filesystem_path(request.json)
-    data = get_data(f"{path}/_data.json")
+    try:
+        data = get_data(f"{path}/_data.json")
+    except FileNotFoundError:
+        abort(404)
     data["upload_stuck"] = True
     update_data(f"{path}/_data.json", data)
 
@@ -510,7 +513,10 @@ def upload_file():
     if total_count == 1:
         file.save(file_path)
 
-        prepare_file_ocr(target_path)
+        try:
+            prepare_file_ocr(target_path)
+        except Exception:
+            abort(500)
 
         with open(f"{target_path}/_data.json", "w", encoding="utf-8") as f:
             json.dump({
@@ -596,13 +602,17 @@ def perform_ocr():
         files = [path]
 
     for f in files:
+        try:
+            data = get_data(f"{f}/_data.json")
+        except FileNotFoundError:
+            abort(500)  # TODO: improve feedback to users on error
+
         # Delete previous results
         if os.path.exists(f"{f}/_ocr_results"):
             shutil.rmtree(f"{f}/_ocr_results")
         os.mkdir(f"{f}/_ocr_results")
 
         # Update the information related to the OCR
-        data = get_data(f"{f}/_data.json")
         data["ocr"] = {
             "algorithm": algorithm,
             "config": "_".join(config),
@@ -653,8 +663,11 @@ def index_doc():
 
         return {}
     else:
+        try:
+            data_path = get_data(path + "/_data.json")
+        except FileNotFoundError:
+            abort(404)
         hOCR_path = path + "/_ocr_results"
-        ocr_config = get_data(path + "/_data.json")
         files = sorted([f for f in os.listdir(hOCR_path) if f.endswith(".json")])
 
         for id, file in enumerate(files):
@@ -664,7 +677,7 @@ def index_doc():
                 hocr = json.load(f)
                 text = json_to_text(hocr)
 
-            if ocr_config["pages"] > 1:
+            if data_path["pages"] > 1:
                 doc = create_document(
                     file_path,
                     "Tesseract",
@@ -684,7 +697,7 @@ def index_doc():
 
             es.add_document(id, doc)
 
-        update_data(path + "/_data.json", {"indexed": True})
+        update_data(data_path, {"indexed": True})
 
         return {
             "success": True,
@@ -712,8 +725,11 @@ def remove_index_doc():
 
         return {}
     else:
+        try:
+            data_path = get_data(path + "/_data.json")
+        except FileNotFoundError:
+            abort(404)
         hOCR_path = path + "/_ocr_results"
-        # config = get_data("/".join(path.split("/")[:-1]) + "/_data.json")
         files = [f for f in os.listdir(hOCR_path) if f.endswith(".json")]
 
         for f in files:
@@ -721,7 +737,7 @@ def remove_index_doc():
             id = generate_uuid(file_path)
             es.delete_document(id)
 
-        update_data(path + "/_data.json", {"indexed": False})
+        update_data(data_path, {"indexed": False})
 
         return {
             "success": True,
@@ -862,10 +878,15 @@ def validate_private_session():
 @app.route("/get-layouts", methods=["GET"])
 @requires_arg_path
 def get_layouts():
-    path, _ = format_path(request.values)
+    path, is_private = format_path(request.values)
     if path is None:
         abort(404)
-    return {"layouts": get_file_layouts(path)}
+    try:
+        layouts = get_file_layouts(path, is_private)
+    except FileNotFoundError:
+        abort(404)
+    return {"layouts": layouts}
+
 
 @app.route("/save-layouts", methods=["POST"])
 @requires_json_path
@@ -878,8 +899,10 @@ def save_layouts():
     if path is None:
         abort(404)
     layouts = data["layouts"]
-
-    save_file_layouts(path, layouts)
+    try:
+        save_file_layouts(path, layouts)
+    except FileNotFoundError:
+        abort(404)
     return {"success": True}
 
 @app.route("/generate-automatic-layouts", methods=["GET"])
@@ -888,8 +911,13 @@ def generate_automatic_layouts():
     path, _ = format_path(request.values)
     if path is None:
         abort(404)
-    parse_images(path)
-    return {"layouts": get_file_layouts(path)}
+    try:
+        parse_images(path)
+        layouts = get_file_layouts(path)
+    except FileNotFoundError:
+        abort(404)
+    return {"layouts": layouts}
+
 
 #####################################
 # MAIN
