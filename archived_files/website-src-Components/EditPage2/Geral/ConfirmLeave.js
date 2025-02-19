@@ -32,7 +32,7 @@ class ConfirmLeave extends React.Component {
         super(props);
         this.state = {
             open: false,
-            page: props.page,
+            page: props.page,  // TODO: remove this reference and use strictly necessary props
         }
 
         this.textField = React.createRef();

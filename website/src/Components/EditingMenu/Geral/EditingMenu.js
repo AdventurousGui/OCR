@@ -57,7 +57,7 @@ class Word extends React.Component {
             value={this.state.text}
             onBlur={e => this.toggleEditWord()}
             onChange={e => this.handleWordChange(e)}
-            onKeyPress={e => { if (e.key === 'Enter') { this.handleWordChange(e); this.toggleEditWord()}}}
+            onKeyUp={e => { if (e.key === 'Enter') { this.handleWordChange(e); this.toggleEditWord()}}}
             />
           : <p
             id={this.state.id}
@@ -83,15 +83,10 @@ class Word extends React.Component {
     }
 }
 
-export default class EditingMenu extends React.Component {
+class EditingMenu extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            filesystem: props.filesystem,
-
-            path: "",
-            filename: props.filename,
-
             loading: true,
             contents: [],
             words_list: [],
@@ -134,15 +129,11 @@ export default class EditingMenu extends React.Component {
     }
 
     componentDidMount() {
-        const path = this.state.filesystem.state.current_folder.join("/");
-
         this.setState({
-            path: path,
-            file: path + "/" + this.state.filename,
             imageHeight: window.innerHeight - 175,
             baseImageHeight: window.innerHeight - 175,
-
             textWidth: window.innerWidth * 0.9 * 0.6 - 70,
+            loading: true
         }, this.getContents);
     }
 
@@ -151,13 +142,14 @@ export default class EditingMenu extends React.Component {
             this.confirmLeave.current.toggleOpen();
         } else {
             window.removeEventListener('beforeunload', this.preventExit);
-            this.state.filesystem.closeEditingMenu();
+            this.props.closeEditingMenu();
         }
     }
 
     getContents(page = 1) {
-        this.setState({loading: true});
-        fetch(process.env.REACT_APP_API_URL + 'get-file?path=' + this.state.file + '&page=' + page, {
+        const path = (this.props.sessionId + '/' + this.props.current_folder + '/' + this.props.filename).replace(/^\//, '');
+        const is_private = this.props._private ? '_private=true&' : '';
+        fetch(process.env.REACT_APP_API_URL + 'get-file?' + is_private + 'path=' + path + '&page=' + page, {
             method: 'GET'
         })
         .then(response => {return response.json()})
@@ -754,6 +746,7 @@ export default class EditingMenu extends React.Component {
             body: JSON.stringify({
                 "text": this.state.contents,
                 "remakeFiles": remakeFiles,
+                "_private": this.props._private
             })
         })
         .then(response => {return response.json()})
@@ -768,7 +761,7 @@ export default class EditingMenu extends React.Component {
                 this.successNot.current.open();
 
                 if (remakeFiles) {
-                    this.state.filesystem.closeEditingMenu();
+                    this.props.closeEditingMenu();
                 }
             } else {
                 // this.errorNot.current.setMessage(data.error);
@@ -1243,3 +1236,10 @@ export default class EditingMenu extends React.Component {
         )
     }
 }
+
+EditingMenu.defaultProps = {
+    _private: false,
+    sessionId: ""
+}
+
+export default EditingMenu;
