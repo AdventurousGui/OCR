@@ -138,7 +138,7 @@ def get_file_parsed(path, is_private):
                     + "/".join(file.split("/")[1:-2])
                     + "/"
                     + basename
-                    + ".jpg",
+                    + ".png",
                 }
             )
     return data, words
@@ -155,7 +155,7 @@ def get_file_layouts(path, is_private):
             folder_url = f"/private/{path.replace(PRIVATE_PATH, '')}"
         else:
             folder_url = f"/image/{path.replace(FILES_PATH, '')}"
-        page_url = IMAGE_PREFIX + folder_url + f"/{basename}_{page}.jpg"
+        page_url = IMAGE_PREFIX + folder_url + f"/{basename}_{page}.png"
 
         if os.path.exists(filename):
             with open(filename, encoding="utf-8") as f:
@@ -396,7 +396,7 @@ def get_page_count(filename):
         with open(filename, "rb") as f:
             return len(pdfium.PdfDocument(f))
             # return len(PdfReader(f).pages)
-    elif extension in ["jpg", "jpeg"]:
+    elif extension in ["jpg", "jpeg", "png"]:
         return 1
 
 # DONE
@@ -463,13 +463,13 @@ def prepare_file_ocr(path):
                 page = pdf[i]
                 bitmap = page.render(300 / 72)  # turn PDF page into 300 DPI bitmap
                 pil_image = bitmap.to_pil()
-                pil_image.save(f"{path}/{basename}_{i}.jpg", dpi=(300, 300))
+                pil_image.save(f"{path}/{basename}_{i}.png", dpi=(300, 300))
 
             pdf.close()
 
-        elif extension in ["jpeg", "jpg"]:
+        elif extension in ["jpeg", "jpg", "png"]:
             img = Image.open(f"{path}/{basename}.{extension}")
-            img.save(f"{path}/{basename}.jpg", "JPEG")
+            img.save(f"{path}/{basename}.png", "PNG")
     except Exception as e:
 
         data_folder = f"{path}/_data.json"
