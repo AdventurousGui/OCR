@@ -687,7 +687,7 @@ def task_page_ocr(
                     box_coords = (left, top, right, bottom)
                     box_coordinates_list.append(box_coords)
 
-            all_jsons = []
+            page_json = []
             for box in box_coordinates_list:
                 # Perform OCR
                 # ocr_start = time.time()
@@ -697,11 +697,8 @@ def task_page_ocr(
                 # ocr_time = time.time() - ocr_start
                 # page_metrics["ocr_time"] = ocr_time
                 if json_d:
-                    all_jsons.append(json_d)
-
-            page_json = []
-            for sublist in all_jsons:
-                page_json.append(sublist)
+                    for paragraph in json_d:
+                        page_json.append(paragraph)
 
             # Save results
             # save_start = time.time()
