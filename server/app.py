@@ -642,6 +642,10 @@ def prepare_upload():
                 "extension": extension if extension in ALLOWED_EXTENSIONS else "other",
                 "stored": 0.00,
                 "creation": get_current_time(),
+                "status": {
+                    "stage": "uploading",
+                    "message": "A enviar",
+                },
             },
             f,
             indent=2,
@@ -873,6 +877,10 @@ def request_ocr():
         data.update(
             {
                 "ocr": {"progress": 0},
+                "status": {
+                    "stage": "ocr",
+                    "message": "A começar OCR...",
+                },
                 "pdf": {"complete": False},
                 "pdf_indexed": {"complete": False},
                 "txt": {"complete": False},
@@ -1205,6 +1213,10 @@ def api_perform_ocr():
                 "creation": get_current_time(),
                 "extension": extension if extension in ALLOWED_EXTENSIONS else "other",
                 "stored": 0.00,  # 0% at start, 100% when all chunks stored, True after prepare_file_ocr
+                "status": {
+                    "stage": "uploading",
+                    "message": "A enviar",
+                },
                 "ocr": {"progress": 0},
                 "pdf": {"complete": False},
                 "pdf_indexed": {"complete": False},
@@ -1283,7 +1295,7 @@ def api_delete_results():
 @roles_required("Admin")
 def check_authorized():
     if current_user.is_authenticated:
-        return {"status": "Logged in"}
+        return "Logged in"
     else:
         abort(HTTPStatus.FORBIDDEN)
 
