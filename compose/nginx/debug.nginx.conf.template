@@ -1,0 +1,137 @@
+# worker_processes auto;
+
+events {
+    worker_connections  1024;
+}
+
+http {
+    limit_req_zone $binary_remote_addr zone=login:10m rate=1r/s;
+    # ssl_session_cache   shared:SSL:10m;
+    # ssl_session_timeout 10m;
+
+    # Uncomment to force upgrade HTTP to HTTPS:
+    #server {
+    #    listen 80;
+    #    server_name _;
+    #    return 301 https://$host$request_uri;
+    #}
+
+    server {
+        include /etc/nginx/mime.types;
+        client_max_body_size  2M;
+
+        listen 8080;
+        # Use this instead to serve HTTPS:
+        #listen              443 ssl;
+        #http2 on;
+        #ssl_certificate     /etc/ssl/certs/nginx-selfsigned.crt;
+        #ssl_certificate_key /etc/ssl/private/nginx-selfsigned.key;
+        #ssl_protocols       TLSv1.2 TLSv1.3;
+
+        keepalive_timeout   70;
+
+        server_name localhost;
+
+        add_header X-Content-Type-Options "nosniff";
+
+        location / {
+            root /usr/share/nginx/html/;
+            try_files $uri $uri/ /index.html;
+        }
+
+        # Don't serve the shared folder directly
+        location /files/ {
+            return 404;
+        }
+
+        location /api/ {
+            proxy_pass            http://server:5001/;
+            proxy_read_timeout    1800;
+            proxy_connect_timeout 1800;
+            proxy_send_timeout    1800;
+            send_timeout          1800;
+        }
+
+        # Set a higher max body size for the segmentation submission route
+        location /api/save-layouts {
+            proxy_pass            http://server:5001/save-layouts;
+            proxy_read_timeout    1800;
+            proxy_connect_timeout 1800;
+            proxy_send_timeout    1800;
+            send_timeout          1800;
+            client_max_body_size  $MAX_DOC_SEGMENTATION_SIZE;
+        }
+
+        # Set a higher max body size for the edited text result submission route
+        location /api/submit-text {
+            proxy_pass            http://server:5001/submit-text;
+            proxy_read_timeout    1800;
+            proxy_connect_timeout 1800;
+            proxy_send_timeout    1800;
+            send_timeout          1800;
+            client_max_body_size  $MAX_EDITED_RESULTS_SIZE;
+        }
+
+        # Set a higher max body size for the upload route
+        location /api/upload-file {
+            proxy_pass            http://server:5001/upload-file;
+            proxy_read_timeout    1800;
+            proxy_connect_timeout 1800;
+            proxy_send_timeout    1800;
+            send_timeout          1800;
+            client_max_body_size  $MAX_FILE_CHUNK_SIZE;
+        }
+
+        # Set a higher max body size for the API upload-and-OCR route
+        location /api/perform-ocr {
+            proxy_pass            http://server:5001/perform-ocr;
+            proxy_read_timeout    1800;
+            proxy_connect_timeout 1800;
+            proxy_send_timeout    1800;
+            send_timeout          1800;
+            client_max_body_size  $MAX_API_FILE_SIZE;
+        }
+
+        # Rate-limit the login route
+        location /api/account/login {
+            limit_req zone=login;
+            proxy_pass            http://server:5001/account/login;
+            proxy_read_timeout    1800;
+            proxy_connect_timeout 1800;
+            proxy_send_timeout    1800;
+            send_timeout          1800;
+        }
+
+        # Don't serve Flower as an API endpoint: it's a browser tool
+        location /api/admin/flower/ {
+             try_files $uri =404;
+        }
+
+        # Direct Flower URLs to Flask endpoint
+        location /admin/flower/ {
+            proxy_pass            http://server:5001/admin/flower/;
+            proxy_read_timeout    1800;
+            proxy_connect_timeout 1800;
+            proxy_send_timeout    1800;
+            send_timeout          1800;
+        }
+
+        location /images/ {
+            alias /usr/share/nginx/html/files/;
+            try_files $uri $uri/ =404;
+
+            # Lists the contents of a folder when GETting a folder path
+            autoindex on;
+            autoindex_exact_size off;
+        }
+
+        location /private/ {
+            alias /usr/share/nginx/html/files/_private_spaces/;
+            try_files $uri $uri/ =404;
+
+            # Lists the contents of a folder when GETting a folder path
+            autoindex on;
+            autoindex_exact_size off;
+        }
+    }
+}

@@ -12,6 +12,7 @@ FROM nginx:stable
 
 COPY --from=builder /build/ /usr/share/nginx/html
 
+# Copy from debug.nginx.conf.template instead for debugging /images/ and /private/ routing
 COPY ./compose/nginx/nginx.conf.template /etc/nginx/templates/nginx.conf.template
 
 # To quickly setup SSL, uncomment and use a custom password to generate a self-signed certificate
